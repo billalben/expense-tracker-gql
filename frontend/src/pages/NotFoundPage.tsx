@@ -8,7 +8,7 @@ const NotFound = () => {
               <img src="/404.svg" alt="404" />
             </div>
             <p className="mb-4 p-2 text-sm text-[#F6009B] md:text-base">
-              The stuff you were looking for {"doesn't"} exist
+              The stuff you were looking for does&apos;nt exist
             </p>
             <a
               href="/"
