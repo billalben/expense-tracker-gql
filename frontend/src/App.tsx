@@ -5,12 +5,15 @@ import SignUpPage from "./pages/SignUpPage";
 import TransactionPage from "./pages/TransactionPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Header from "./components/ui/Header";
+import { useQuery } from "@apollo/client";
+import { GET_AUTHENTICATED_USER } from "./graphql/queries/user.query";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-  const data = {
-    authUser: true,
-  };
+  const { loading, error, data } = useQuery(GET_AUTHENTICATED_USER);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error! {error.message}</div>;
 
   return (
     <>

@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RadioButton from "../components/RadioButton";
 import InputField from "../components/InputField";
+import { useMutation } from "@apollo/client";
+import { SIGN_UP } from "../graphql/mutations/user.mutation";
 import toast from "react-hot-toast";
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [signUpData, setSignUpData] = useState({
     name: "",
     username: "",
@@ -12,15 +15,16 @@ const SignUpPage = () => {
     gender: "",
   });
 
-  const loading = false;
+  const [signUpFunction, { loading, error }] = useMutation(SIGN_UP);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      toast.success("Sign up successful");
-    } catch (error) {
-      console.error("Error:", error);
-      // toast.error(error.message);
+      await signUpFunction({ variables: { input: signUpData } });
+      toast.success("Signed up successfully 🎉");
+      navigate("/login");
+    } catch {
+      toast.error(`Failed to sign up: ${error?.message}`);
     }
   };
 
