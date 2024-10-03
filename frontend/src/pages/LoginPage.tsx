@@ -32,7 +32,7 @@ const LoginPage = () => {
       await loginFunction({ variables: { input: loginData } });
       toast.success("Logged in successfully 🎉");
     } catch {
-      toast.error(`Failed to login: ${error?.message}`);
+      toast.error(`Failed to login: ${error?.message || ""}`);
     }
   };
 

@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
-import TransactionPage from "./pages/TransactionPage";
+import EditTransactionPage from "./pages/EditTransactionPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Header from "./components/ui/Header";
 import { useQuery } from "@apollo/client";
@@ -34,7 +34,7 @@ function App() {
         <Route
           path="/transaction/:id"
           element={
-            data.authUser ? <TransactionPage /> : <Navigate to="/login" />
+            data.authUser ? <EditTransactionPage /> : <Navigate to="/login" />
           }
         />
         <Route path="*" element={<NotFoundPage />} />

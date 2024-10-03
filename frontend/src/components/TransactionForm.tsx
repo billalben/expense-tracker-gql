@@ -1,4 +1,15 @@
+import { useMutation } from "@apollo/client";
+import { CREATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import toast from "react-hot-toast";
+
 const TransactionForm = () => {
+  const [createTransaction, { loading, error }] = useMutation(
+    CREATE_TRANSACTION,
+    {
+      refetchQueries: ["GetTransactions", "GetTransactionStatistics"],
+    },
+  );
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -12,7 +23,14 @@ const TransactionForm = () => {
       location: (formData.get("location") as string) || "",
       date: (formData.get("date") as string) || "",
     };
-    console.log("transactionData", transactionData);
+
+    try {
+      await createTransaction({ variables: { input: transactionData } });
+      form.reset();
+      toast.success("Transaction created successfully 🎉");
+    } catch {
+      toast.error(`Failed to created: ${error?.message || ""}`);
+    }
   };
 
   return (
@@ -36,6 +54,7 @@ const TransactionForm = () => {
             type="text"
             required
             placeholder="Rent, Groceries, Salary, etc."
+            maxLength={100}
           />
         </div>
       </div>
@@ -114,6 +133,7 @@ const TransactionForm = () => {
             type="number"
             placeholder="150"
             required
+            max={100000}
           />
         </div>
       </div>
@@ -134,6 +154,7 @@ const TransactionForm = () => {
             type="text"
             placeholder="New York"
             required
+            maxLength={20}
           />
         </div>
 
@@ -159,8 +180,9 @@ const TransactionForm = () => {
       <button
         className="w-full px-4 py-2 font-bold text-white rounded bg-gradient-to-br from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-70"
         type="submit"
+        disabled={loading}
       >
-        Add Transaction
+        {loading ? "Loading..." : "Add Transaction"}
       </button>
     </form>
   );

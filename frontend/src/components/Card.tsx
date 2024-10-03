@@ -5,53 +5,99 @@ import { FaSackDollar } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { HiPencilAlt } from "react-icons/hi";
 import { Link } from "react-router-dom";
-
-type CardProps = {
-  cardType: "saving" | "expense" | "investment";
-};
+import { formatDate } from "../utils/formatDate";
+import toast from "react-hot-toast";
+import { useMutation } from "@apollo/client";
+import { DELETE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
 
 const categoryColorMap = {
   saving: "from-green-700 to-green-400",
   expense: "from-pink-800 to-pink-600",
   investment: "from-blue-700 to-blue-400",
-  // Add more categories and corresponding color classes as needed
 };
 
-const Card = ({ cardType }: CardProps) => {
-  const cardClass = categoryColorMap[cardType];
+type CardProps = {
+  transaction: {
+    _id: string;
+    category: "saving" | "expense" | "investment";
+    amount: number;
+    location: string;
+    date: string;
+    paymentType: "card" | "cash";
+    description: string;
+  };
+  authUser: {
+    profilePicture: string;
+  };
+};
+
+const Card = ({ transaction, authUser }: CardProps) => {
+  const { category, amount, location, date, paymentType, description } =
+    transaction;
+  const cardClass = categoryColorMap[category];
+  const [deleteTransaction, { loading, error }] = useMutation(
+    DELETE_TRANSACTION,
+    {
+      refetchQueries: ["GetTransactions", "GetTransactionStatistics"],
+    },
+  );
+
+  const formattedDate = formatDate(date);
+
+  const handleDelete = async () => {
+    try {
+      await deleteTransaction({
+        variables: { transactionId: transaction._id },
+      });
+      toast.success("Transaction deleted successfully 🎉");
+    } catch {
+      toast.error(`Failed to delete transaction: ${error?.message || ""}`);
+    }
+  };
 
   return (
     <div className={`rounded-md bg-gradient-to-br p-4 ${cardClass}`}>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col justify-between h-full gap-3">
         <div className="flex flex-row items-center justify-between">
-          <h2 className="text-lg font-bold text-white">Saving</h2>
-          <div className="flex items-center gap-3">
-            <FaTrash className={"cursor-pointer"} />
-            <Link to={`/transaction/123`}>
+          <h2 className="text-xl font-bold tracking-wider text-white">
+            {category}
+          </h2>
+          <div className="flex items-center gap-2">
+            {!loading && (
+              <FaTrash className={"cursor-pointer"} onClick={handleDelete} />
+            )}
+            {loading && (
+              <div className="w-6 h-6 border-t-2 border-b-2 rounded-full animate-spin"></div>
+            )}
+            <Link to={`/transaction/${transaction._id}`}>
               <HiPencilAlt className="cursor-pointer" size={20} />
             </Link>
           </div>
         </div>
-        <p className="flex items-center gap-2 text-white">
-          <BsCardText />
-          Description: Salary
-        </p>
-        <p className="flex items-center gap-2 text-white">
-          <MdOutlinePayments />
-          Payment Type: Cash
-        </p>
-        <p className="flex items-center gap-2 text-white">
-          <FaSackDollar />
-          Amount: $150
-        </p>
-        <p className="flex items-center gap-2 text-white">
-          <FaLocationDot />
-          Location: New York
-        </p>
+        <div className="flex flex-col justify-center flex-1 gap-3">
+          <p className="flex flex-wrap items-center gap-2 text-white capitalize">
+            <BsCardText className="shrink-0" size={20} />
+            <b>Description:</b> {description}
+          </p>
+          <p className="flex items-center gap-2 text-white capitalize">
+            <MdOutlinePayments className="shrink-0" size={20} />
+            <b>Payment Type:</b> {paymentType}
+          </p>
+          <p className="flex items-center gap-2 text-white capitalize">
+            <FaSackDollar className="shrink-0" size={20} />
+            <b>Amount:</b> ${amount}
+          </p>
+          <p className="flex items-center gap-2 text-white">
+            <FaLocationDot className="shrink-0" size={20} />
+            <b>Location:</b> {location || "N/A"}
+          </p>
+        </div>
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold text-black">21 Sep, 2001</p>
+          <p className="text-xs font-bold tracking-wider text-slate-800">
+            {formattedDate}
+          </p>
           <img
-            src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+            src={authUser?.profilePicture}
             className="w-8 h-8 border rounded-full"
             alt=""
           />

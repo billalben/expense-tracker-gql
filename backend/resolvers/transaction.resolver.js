@@ -1,4 +1,5 @@
 import Transaction from "../models/transaction.model.js";
+import User from "../models/user.model.js";
 
 const transactionResolver = {
   Query: {
@@ -7,7 +8,9 @@ const transactionResolver = {
         if (!context.getUser()) throw new Error("Unauthorized");
         const userId = await context.getUser()._id;
 
-        const transactions = await Transaction.find({ userId });
+        const transactions = await Transaction.find({ userId }).sort({
+          date: "desc",
+        });
         return transactions;
       } catch (error) {
         throw new Error("Error getting transactions");
@@ -75,7 +78,7 @@ const transactionResolver = {
         });
 
         return newTransaction;
-      } catch (error) {
+      } catch {
         throw new Error("Error creating transaction");
       }
     },
@@ -89,7 +92,7 @@ const transactionResolver = {
           }
         );
         return updatedTransaction;
-      } catch (error) {
+      } catch {
         throw new Error("Error updating transaction");
       }
     },
@@ -99,8 +102,20 @@ const transactionResolver = {
           transactionId
         );
         return deletedTransaction;
-      } catch (error) {
+      } catch {
         throw new Error("Error deleting transaction");
+      }
+    },
+  },
+  Transaction: {
+    user: async (parent) => {
+      const userId = parent.userId;
+      try {
+        const user = await User.findById(userId);
+        return user;
+      } catch (error) {
+        console.error("Error getting user:", error?.message);
+        throw new Error("Error getting user");
       }
     },
   },

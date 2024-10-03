@@ -15,7 +15,9 @@ const SignUpPage = () => {
     gender: "",
   });
 
-  const [signUpFunction, { loading, error }] = useMutation(SIGN_UP);
+  const [signUpFunction, { loading, error }] = useMutation(SIGN_UP, {
+    refetchQueries: ["GetAuthenticatedUser"],
+  });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,7 +26,7 @@ const SignUpPage = () => {
       toast.success("Signed up successfully 🎉");
       navigate("/login");
     } catch {
-      toast.error(`Failed to sign up: ${error?.message}`);
+      toast.error(`Failed to sign up: ${error?.message || ""}`);
     }
   };
 

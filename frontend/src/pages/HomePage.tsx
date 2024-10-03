@@ -46,31 +46,30 @@ const HomePage = () => {
       client.resetStore(); // This will cause the store to be cleared and all active queries to be refetched.
       toast.success("Logged out successfully 🎉");
     } catch {
-      toast.error(`Failed to logout: ${error?.message}`);
+      toast.error(`Failed to logout: ${error?.message || ""}`);
     }
   };
 
   return (
     <>
       <div className="relative z-20 flex flex-col items-center justify-center gap-6 mx-auto max-w-7xl">
-        <div className="flex items-center">
-          <p className="relative z-50 inline-block mb-4 mr-4 text-2xl font-bold text-center text-transparent bg-gradient-to-r from-pink-600 via-indigo-500 to-pink-400 bg-clip-text md:text-4xl lg:text-4xl">
+        <div className="flex items-center justify-center gap-1 sm:gap-4">
+          <p className="text-xl font-bold text-center text-transparent bg-gradient-to-r from-pink-600 via-indigo-500 to-pink-400 bg-clip-text md:text-4xl lg:text-4xl">
             Spend wisely, track wisely
           </p>
           <img
             src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
-            className="border rounded-full cursor-pointer h-11 w-11"
+            className="border rounded-full h-11 w-11"
             alt="Avatar"
           />
-          {!loading && (
+
+          {loading ? (
+            <div className="w-8 h-8 border-t-2 border-b-2 rounded-full animate-spin"></div>
+          ) : (
             <MdLogout
-              className="w-5 h-5 mx-2 cursor-pointer"
+              className="w-8 h-8 transition-colors cursor-pointer hover:text-red-500"
               onClick={handleLogout}
             />
-          )}
-          {/* loading spinner */}
-          {loading && (
-            <div className="w-6 h-6 mx-2 border-t-2 border-b-2 rounded-full animate-spin"></div>
           )}
         </div>
         <div className="flex flex-wrap items-center justify-center w-full gap-6">
