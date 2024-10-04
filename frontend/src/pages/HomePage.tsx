@@ -5,40 +5,70 @@ import Cards from "../components/Cards";
 import TransactionForm from "../components/TransactionForm";
 
 import { MdLogout } from "react-icons/md";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { LOGOUT } from "../graphql/mutations/user.mutation";
 import toast from "react-hot-toast";
+import { GET_AUTHENTICATED_USER } from "../graphql/queries/user.query";
+import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
+import { useEffect, useState } from "react";
+import { TChartData, TTransactionStatistics } from "../types";
+import { ECategories } from "../enums";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HomePage = () => {
+  const { data } = useQuery<TTransactionStatistics>(GET_TRANSACTION_STATISTICS);
+  const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER);
   const [logoutFunction, { loading, error, client }] = useMutation(LOGOUT, {
     refetchQueries: ["GetAuthenticatedUser"],
   });
 
-  const chartData = {
-    labels: ["Saving", "Expense", "Investment"],
+  const [chartData, setChartData] = useState<TChartData>({
+    labels: [],
     datasets: [
       {
-        label: "%",
-        data: [13, 8, 3],
-        backgroundColor: [
-          "rgba(75, 192, 192)",
-          "rgba(255, 99, 132)",
-          "rgba(54, 162, 235)",
-        ],
-        borderColor: [
-          "rgba(75, 192, 192)",
-          "rgba(255, 99, 132)",
-          "rgba(54, 162, 235, 1)",
-        ],
-        borderWidth: 1,
+        label: "$",
+        data: [],
+        backgroundColor: [],
         borderRadius: 30,
+        borderWidth: 0,
         spacing: 10,
         cutout: 130,
       },
     ],
-  };
+  });
+
+  useEffect(() => {
+    if (data?.categoryStatistics) {
+      const categories = data.categoryStatistics.map((stat) => stat.category);
+      const totalAmounts = data.categoryStatistics.map(
+        (stat) => stat.totalAmount,
+      );
+
+      const backgroundColors: string[] = [];
+
+      categories.forEach((category) => {
+        if (category === ECategories.SAVING) {
+          backgroundColors.push("rgba(75, 192, 192)");
+        } else if (category === ECategories.EXPENSE) {
+          backgroundColors.push("rgba(255, 99, 132)");
+        } else if (category === ECategories.INVESTMENT) {
+          backgroundColors.push("rgba(54, 162, 235)");
+        }
+      });
+
+      setChartData((prev) => ({
+        labels: categories,
+        datasets: [
+          {
+            ...prev.datasets[0],
+            data: totalAmounts,
+            backgroundColor: backgroundColors,
+          },
+        ],
+      }));
+    }
+  }, [data]);
 
   const handleLogout = async () => {
     try {
@@ -58,7 +88,7 @@ const HomePage = () => {
             Spend wisely, track wisely
           </p>
           <img
-            src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+            src={authUserData?.authUser.profilePicture}
             className="border rounded-full h-11 w-11"
             alt="Avatar"
           />
