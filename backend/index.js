@@ -24,6 +24,7 @@ import { configurePassport } from "./passport/passport.config.js";
 dotenv.config();
 configurePassport(); // passport.serializeUser, passport.deserializeUser, passport.use
 
+const __dirname = path.resolve();
 const app = express();
 
 const httpServer = http.createServer(app);
@@ -69,6 +70,14 @@ app.use(
     context: ({ req, res }) => buildContext({ req, res, passport }),
   })
 );
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 // Modified server startup
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));

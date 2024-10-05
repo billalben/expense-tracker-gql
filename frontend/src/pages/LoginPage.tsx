@@ -28,6 +28,7 @@ const LoginPage = () => {
     if (!loginData.username || !loginData.password) {
       return toast.error("Please fill in all fields");
     }
+
     try {
       await loginFunction({ variables: { input: loginData } });
       toast.success("Logged in successfully 🎉");

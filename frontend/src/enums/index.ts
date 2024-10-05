@@ -3,3 +3,8 @@ export enum ECategories {
   EXPENSE = "expense",
   INVESTMENT = "investment",
 }
+
+export enum EPaymentTypes {
+  CASH = "cash",
+  CARD = "card",
+}

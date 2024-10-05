@@ -11,14 +11,15 @@ import toast from "react-hot-toast";
 import { GET_AUTHENTICATED_USER } from "../graphql/queries/user.query";
 import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query";
 import { useEffect, useState } from "react";
-import { TChartData, TTransactionStatistics } from "../types";
+import { TChartData, TTransactionStatistics, TUser } from "../types";
 import { ECategories } from "../enums";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HomePage = () => {
   const { data } = useQuery<TTransactionStatistics>(GET_TRANSACTION_STATISTICS);
-  const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER);
+  const { data: authUserData } = useQuery<TUser>(GET_AUTHENTICATED_USER);
+
   const [logoutFunction, { loading, error, client }] = useMutation(LOGOUT, {
     refetchQueries: ["GetAuthenticatedUser"],
   });

@@ -1,4 +1,4 @@
-import { ECategories } from "../enums";
+import { ECategories, EPaymentTypes } from "../enums";
 
 export type TChartData = {
   labels: string[];
@@ -19,4 +19,36 @@ export type TTransactionStatistics = {
     category: ECategories;
     totalAmount: number;
   }[];
+};
+
+export type TUser = {
+  authUser: {
+    _id: string;
+    username: string;
+    name: string;
+    profilePicture: string;
+    gender?: "male" | "female";
+    transactions?: TTransaction[];
+  };
+};
+
+export type TTransaction = {
+  transaction: {
+    id: string;
+    userId: string;
+    description: string;
+    paymentType: EPaymentTypes;
+    category: ECategories;
+    amount: number;
+    location: string;
+    date: string;
+    user?: {
+      _id: string;
+      username: string;
+      name: string;
+      profilePicture: string;
+      gender?: "male" | "female";
+      transactions?: TTransaction[];
+    };
+  };
 };

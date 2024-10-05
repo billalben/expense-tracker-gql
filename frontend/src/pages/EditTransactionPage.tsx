@@ -8,11 +8,12 @@ import {
 import { UPDATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
 import toast from "react-hot-toast";
 import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton";
+import { TTransaction } from "../types";
 
 const EditTransactionPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { loading, error, data } = useQuery(GET_TRANSACTION, {
+  const { loading, error, data } = useQuery<TTransaction>(GET_TRANSACTION, {
     variables: { id: id },
   });
 
@@ -32,14 +33,12 @@ const EditTransactionPage = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const amount = parseFloat(formData.amount); // convert amount to number bc by default it is string
-    // and the reason it's coming from an input field
+
     try {
       await updateTransaction({
         variables: {
           input: {
             ...formData,
-            amount,
             transactionId: id,
           },
         },
@@ -47,7 +46,9 @@ const EditTransactionPage = () => {
       toast.success("Transaction updated successfully");
       navigate("/");
     } catch {
-      toast.error(`Failed to update transaction: ${errorUpdate?.message || ""}`);
+      toast.error(
+        `Failed to update transaction: ${errorUpdate?.message || ""}`,
+      );
     }
   };
 
@@ -76,14 +77,15 @@ const EditTransactionPage = () => {
     }
   }, [data]);
 
-  if (error) toast.error(`Failed to fetch transaction: ${error?.message || ""}`);
+  if (error)
+    toast.error(`Failed to fetch transaction: ${error?.message || ""}`);
   if (loading) return <TransactionFormSkeleton />;
 
   return (
     <div className="flex flex-col items-center h-screen max-w-4xl mx-auto">
       <div className="flex items-center justify-center gap-1 sm:gap-4">
         <p className="text-xl font-bold text-center text-transparent bg-gradient-to-r from-pink-600 via-indigo-500 to-pink-400 bg-clip-text md:text-4xl lg:text-4xl">
-          {data?.transaction?.user?.name || "Unknown User"}
+          {data?.transaction.user?.name || "Unknown User"}
         </p>
         <img
           src={

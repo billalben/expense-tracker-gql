@@ -8,20 +8,18 @@ const transactionResolver = {
         if (!context.getUser()) throw new Error("Unauthorized");
         const userId = await context.getUser()._id;
 
-        const transactions = await Transaction.find({ userId }).sort({
+        return await Transaction.find({ userId }).sort({
           date: "desc",
         });
-        return transactions;
       } catch (error) {
-        throw new Error("Error getting transactions");
+        throw new Error(error?.message || "Internal server error");
       }
     },
     transaction: async (_, { transactionId }) => {
       try {
-        const transaction = await Transaction.findById(transactionId);
-        return transaction;
+        return await Transaction.findById(transactionId);
       } catch (error) {
-        throw new Error("Error getting transaction");
+        throw new Error(error?.message || "Internal server error");
       }
     },
     categoryStatistics: async (_, __, context) => {
@@ -72,38 +70,28 @@ const transactionResolver = {
       try {
         if (!context.getUser()) throw new Error("Unauthorized");
 
-        const newTransaction = await Transaction.create({
+        return await Transaction.create({
           ...input,
           userId: context.getUser()._id,
         });
-
-        return newTransaction;
-      } catch {
-        throw new Error("Error creating transaction");
+      } catch (error) {
+        throw new Error(error?.message || "Internal server error");
       }
     },
     updateTransaction: async (_, { input }) => {
       try {
-        const updatedTransaction = await Transaction.findByIdAndUpdate(
-          input.transactionId,
-          input,
-          {
-            new: true,
-          }
-        );
-        return updatedTransaction;
-      } catch {
-        throw new Error("Error updating transaction");
+        return await Transaction.findByIdAndUpdate(input.transactionId, input, {
+          new: true,
+        });
+      } catch (error) {
+        throw new Error(error?.message || "Internal server error");
       }
     },
     deleteTransaction: async (_, { transactionId }) => {
       try {
-        const deletedTransaction = await Transaction.findByIdAndDelete(
-          transactionId
-        );
-        return deletedTransaction;
-      } catch {
-        throw new Error("Error deleting transaction");
+        return await Transaction.findByIdAndDelete(transactionId);
+      } catch (error) {
+        throw new Error(error?.message || "Internal server error");
       }
     },
   },
@@ -111,11 +99,9 @@ const transactionResolver = {
     user: async (parent) => {
       const userId = parent.userId;
       try {
-        const user = await User.findById(userId);
-        return user;
+        return await User.findById(userId);
       } catch (error) {
-        console.error("Error getting user:", error?.message);
-        throw new Error("Error getting user");
+        throw new Error(error?.message || "Internal server error");
       }
     },
   },

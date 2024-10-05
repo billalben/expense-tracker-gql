@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Transaction from "../models/transaction.model.js";
 
 const userResolver = {
   Mutation: {
@@ -69,18 +70,25 @@ const userResolver = {
   Query: {
     authUser: async (_, __, context) => {
       try {
-        const user = await context.getUser();
-        return user;
+        return await context.getUser();
       } catch (error) {
         throw new Error("Internal server error");
       }
     },
     user: async (_, { userId }) => {
       try {
-        const user = await User.findById(userId);
-        return user;
+        return await User.findById(userId);
       } catch (error) {
         throw new Error(error.message || "Error getting user");
+      }
+    },
+  },
+  User: {
+    transactions: async (parent) => {
+      try {
+        return  await Transaction.find({ userId: parent._id });
+      } catch (error) {
+        throw new Error(error?.message || "Internal server error");
       }
     },
   },
