@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@utility bg-grid-* {
+  --grid-color: --value(--color-*, [color]);
+  --grid-color: color-mix(
+    in oklab,
+    --value(--color-*, [color]) calc(--modifier([number]) * 100%),
+    transparent
+  );
+  background-image:
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@utility bg-grid-small-* {
+  --grid-color: --value(--color-*, [color]);
+  --grid-color: color-mix(
+    in oklab,
+    --value(--color-*, [color]) calc(--modifier([number]) * 100%),
+    transparent
+  );
+  background-image:
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+@utility bg-dot-* {
+  --dot-color: --value(--color-*, [color]);
+  --dot-color: color-mix(
+    in oklab,
+    --value(--color-*, [color]) calc(--modifier([number]) * 100%),
+    transparent
+  );
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--dot-color) 1px,
+    transparent 0
+  );
+  background-size: 16px 16px;
+}
