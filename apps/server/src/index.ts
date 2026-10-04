@@ -1,4 +1,5 @@
 import express from "express";
+import type { RequestHandler } from "express";
 import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -26,7 +27,12 @@ dotenv.config();
 configurePassport(); // passport.serializeUser, passport.deserializeUser, passport.use
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isProduction = process.env.NODE_ENV === "production";
 const app = express();
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
 const httpServer = http.createServer(app);
 
@@ -63,9 +69,7 @@ const server = new ApolloServer<GraphQLContext>({
 
 await server.start();
 
-app.use(
-  "/graphql",
-  cors({ origin: process.env.CLIENT_URL, credentials: true }),
+const graphqlMiddleware: RequestHandler[] = [
   express.json(),
   expressMiddleware(server, {
     context: async ({ req, res }) =>
@@ -74,10 +78,21 @@ app.use(
         res,
         passport,
       } as GraphQLContextParams) as unknown as GraphQLContext,
-  })
-);
+  }) as RequestHandler,
+];
 
-if (process.env.NODE_ENV === "production") {
+// In production the client is served from this same origin, so CORS isn't
+// needed. In development the Vite dev server proxies to us, but we still
+// allow the configured client origin for flexibility.
+if (!isProduction) {
+  graphqlMiddleware.unshift(
+    cors({ origin: process.env.CLIENT_URL, credentials: true })
+  );
+}
+
+app.use("/graphql", ...graphqlMiddleware);
+
+if (isProduction) {
   const clientDist = path.resolve(__dirname, "../../client/dist");
   app.use(express.static(clientDist));
 

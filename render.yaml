@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: expense-tracker-gql
+    runtime: node
+    plan: free
+    healthCheckPath: /
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20.19"
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false

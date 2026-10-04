@@ -9,11 +9,14 @@
     "dev": "pnpm -r --parallel dev",
     "dev:server": "pnpm --filter server dev",
     "dev:client": "pnpm --filter client dev",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter client build && pnpm --filter server build",
     "start": "pnpm --filter server start",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=20.19"
   },
   "keywords": [],
   "author": "",
