@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     healthCheckPath: /
-    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build
+    buildCommand: pnpm build
     startCommand: pnpm start
     envVars:
       - key: NODE_VERSION

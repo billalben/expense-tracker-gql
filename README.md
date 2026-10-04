@@ -83,7 +83,7 @@ The client needs no environment variables.
 A single build produces both apps, and one server serves both:
 
 ```bash
-pnpm build                      # builds the client into apps/client/dist, then the server
+pnpm build                      # installs deps, builds client + server
 NODE_ENV=production pnpm start  # API + static client on the same port
 ```
 
@@ -99,7 +99,7 @@ The repo ships a [`render.yaml`](./render.yaml) Blueprint that provisions a
 1. In Render, choose **New → Blueprint** and point it at the branch that
    contains `render.yaml`.
 2. Render reads `render.yaml` and uses:
-   - Build: `pnpm install --frozen-lockfile --prod=false && pnpm build`
+   - Build: `pnpm build` (the script installs dependencies, then builds)
    - Start: `pnpm start`
 3. Fill in the prompted secrets:
    - `MONGO_URI` — MongoDB Atlas connection string.
@@ -111,11 +111,12 @@ The repo ships a [`render.yaml`](./render.yaml) Blueprint that provisions a
 applied, the service is Blueprint-managed: edits to `render.yaml` on that branch
 sync automatically.
 
-> **Build must pass `--prod=false`.** `NODE_ENV=production` is set at build time
-> too, and pnpm skips `devDependencies` when it sees that — which removes the
-> client's build tooling (`vite`, `typescript`, `@types/*`). Forcing
-> `--prod=false` keeps dev dependencies during the build while runtime stays
-> production.
+> **Why the build script runs `pnpm install --prod=false`.** Render sets
+> `NODE_ENV=production`, and pnpm skips `devDependencies` when it sees that —
+> which removes the client's build tooling (`vite`, `typescript`, `@types/*`).
+> Forcing `--prod=false` keeps dev dependencies during the build while runtime
+> stays production. Doing it inside the `build` script means it self-heals even
+> if the host's install step uses npm or omits dev dependencies.
 
 ## Notes
 
