@@ -96,9 +96,10 @@ non-`/graphql` routes, with an SPA fallback to `index.html`. The client requests
 The repo ships a [`render.yaml`](./render.yaml) Blueprint that provisions a
 **single** Web Service (no separate frontend/static site):
 
-1. In Render, choose **New → Blueprint** and point it at this repo.
+1. In Render, choose **New → Blueprint** and point it at the branch that
+   contains `render.yaml`.
 2. Render reads `render.yaml` and uses:
-   - Build: `pnpm install --frozen-lockfile && pnpm build`
+   - Build: `pnpm install --frozen-lockfile --prod=false && pnpm build`
    - Start: `pnpm start`
 3. Fill in the prompted secrets:
    - `MONGO_URI` — MongoDB Atlas connection string.
@@ -106,9 +107,15 @@ The repo ships a [`render.yaml`](./render.yaml) Blueprint that provisions a
    - `CLIENT_URL` — the public Render URL, e.g. `https://expense-tracker-gql.onrender.com`.
      Only used for CORS in development; production is same-origin.
 
-`NODE_ENV=production` and `NODE_VERSION=20.19` are set by the Blueprint. If you
-already have a Render service, set its build/start commands and env vars to
-match the values above instead of creating a new one.
+`NODE_ENV=production` and `NODE_VERSION=20.19` are set by the Blueprint. Once
+applied, the service is Blueprint-managed: edits to `render.yaml` on that branch
+sync automatically.
+
+> **Build must pass `--prod=false`.** `NODE_ENV=production` is set at build time
+> too, and pnpm skips `devDependencies` when it sees that — which removes the
+> client's build tooling (`vite`, `typescript`, `@types/*`). Forcing
+> `--prod=false` keeps dev dependencies during the build while runtime stays
+> production.
 
 ## Notes
 

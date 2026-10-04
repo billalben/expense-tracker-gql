@@ -16,7 +16,7 @@
     "typecheck": "pnpm -r typecheck"
   },
   "engines": {
-    "node": ">=20.19"
+    "node": ">=20.19 <23"
   },
   "keywords": [],
   "author": "",
